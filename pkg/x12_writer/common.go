@@ -35,12 +35,13 @@ func (x *Address) N3N4(w *EdiWriter) {
 }
 
 type Demographic struct {
-	Birth  string
-	Gender string
+	Birth   string
+	Gender  string
+	Marital string
 }
 
 func (x *Demographic) Dmg(w *EdiWriter) {
-	w.Write("DMG", "D8", x.Birth, x.Gender)
+	w.Write("DMG", "D8", x.Birth, x.Gender, x.Marital)
 }
 
 type Phone struct {

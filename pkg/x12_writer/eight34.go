@@ -1,12 +1,13 @@
 package x12_writer
 
 type Eight34 struct {
-	Index            string
-	Bgn02ReferenceId string //
-	Ref38Policy      string
-	Sponsor          Name
-	Payer            Name
-	Insured          []Insured
+	Index             string
+	Bgn02ReferenceId  string //
+	Ref38Policy       string
+	FileEffectiveDate string
+	Sponsor           Name
+	Payer             Name
+	Insured           []Insured
 }
 
 func New834() *Eight34 {
@@ -28,7 +29,12 @@ func (x *Eight34) Write(w *EdiWriter) {
 	defer w.EndTransaction()
 	w.Write("BGN", "00", x.Bgn02ReferenceId, w.ccyymmdd, w.hhmm, "", "", "", Verify)
 	w.Ref("38", x.Ref38Policy)
-	w.Date("303", w.ccyymmdd)
+	if x.FileEffectiveDate != "" {
+		w.Date("007", x.FileEffectiveDate)
+	} else {
+		w.Date("007", w.ccyymmdd)
+	}
+
 	//w.Write("QTY", "TO", fmt.Sprintf("%d", len(x.Insured))
 	x.Sponsor.N1("P5", w)
 	x.Payer.N1("IN", w)
@@ -49,19 +55,23 @@ type Insured struct {
 }
 
 func (x *Insured) Write(w *EdiWriter) {
-	isSubscriber := "Y"
-	if x.Relationship != "18" {
-		isSubscriber = "N"
+	isSubscriber := "N"
+	var ins08, hd05 string // coverage level
+	if x.Relationship == "18" {
+		isSubscriber = "Y"
+		ins08 = "AC" // FT = full time
+		hd05 = "EMP"
 	}
 
-	w.Write("INS", isSubscriber, x.Relationship, "030", "20", "A")
+	w.Write("INS", isSubscriber, x.Relationship, "030", "XN", "A", "", "", ins08)
 	w.Write("REF", "0F", x.Id)
 	x.Name.Nm1("IL", w)
 	x.Phone.Per("IP", w)
 	x.Address.N3N4(w)
 	x.Demographic.Dmg(w)
-	w.Write("HD", "030", "", "HLT", x.Policy, "EMP")
+
+	w.Write("HD", "030", "", "HLT", x.Policy, hd05)
 	w.Date("348", x.Effective)
 	w.Date("349", x.Terminate)
-	w.Ref("1L", x.Policy)
+	//w.Ref("1L", x.Policy)
 }

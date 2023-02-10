@@ -20,6 +20,9 @@ type EdiWriter struct {
 
 func (w *EdiWriter) Write(r ...string) {
 	w.segCount++
+	for len(r) > 0 && len(r[len(r)-1]) == 0 {
+		r = r[0 : len(r)-1]
+	}
 	for i, v := range r {
 		if i > 0 {
 			w.s.WriteString(w.Edelim)
