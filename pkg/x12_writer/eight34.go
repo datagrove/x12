@@ -52,6 +52,7 @@ type Insured struct {
 	Terminate string
 	Demographic
 	Phone
+	BenefitLevelHd05 string
 }
 
 func (x *Insured) Write(w *EdiWriter) {
@@ -60,7 +61,7 @@ func (x *Insured) Write(w *EdiWriter) {
 	if x.Relationship == "18" {
 		isSubscriber = "Y"
 		ins08 = "AC" // FT = full time
-		hd05 = "EMP"
+		hd05 = x.BenefitLevelHd05
 	}
 
 	w.Write("INS", isSubscriber, x.Relationship, "030", "XN", "A", "", "", ins08)
