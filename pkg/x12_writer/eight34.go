@@ -45,6 +45,7 @@ func (x *Eight34) Write(w *EdiWriter) {
 
 type Insured struct {
 	Relationship string
+	SubscriberId string
 	Name
 	Address
 	Policy    string
@@ -65,7 +66,9 @@ func (x *Insured) Write(w *EdiWriter) {
 	}
 
 	w.Write("INS", isSubscriber, x.Relationship, "030", "XN", "A", "", "", ins08)
-	w.Write("REF", "0F", x.Id)
+
+	w.Write("REF", "0F", x.SubscriberId)
+
 	x.Name.Nm1("IL", w)
 	x.Phone.Per("IP", w)
 	x.Address.N3N4(w)
