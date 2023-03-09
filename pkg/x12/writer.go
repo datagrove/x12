@@ -1,4 +1,4 @@
-package x12_writer
+package x12
 
 import (
 	"fmt"
@@ -18,7 +18,25 @@ type EdiWriter struct {
 	s             strings.Builder
 }
 
+func (w *EdiWriter) fixString(s string) string {
+	var o strings.Builder
+	for _, c := range s {
+		switch c {
+		case '*':
+		case '^':
+		case ':':
+		default:
+			o.WriteRune(c)
+		}
+
+	}
+	return strings.TrimSpace(o.String())
+}
+
 func (w *EdiWriter) Write(r ...string) {
+	for i := range r {
+		r[i] = w.fixString(r[i])
+	}
 	w.segCount++
 	for len(r) > 0 && len(r[len(r)-1]) == 0 {
 		r = r[0 : len(r)-1]
@@ -52,8 +70,8 @@ func (w *EdiWriter) BeginGroup() {
 	w.groupCount++
 	w.stCount = 0
 	w.Write("GS", "BE",
-		w.EdiOptions.Sender.Value,
-		w.EdiOptions.Receiver.Value,
+		w.EdiOptions.Gs02,
+		w.EdiOptions.Gs03,
 		w.ccyymmdd,
 		w.hhmm,
 		fmt.Sprintf("%d", w.groupCount),

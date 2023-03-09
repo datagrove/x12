@@ -1,4 +1,4 @@
-package x12_writer
+package x12
 
 type Eight34 struct {
 	Index             string
