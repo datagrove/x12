@@ -38,7 +38,7 @@ func (s *Segment) Set(n int, value string) {
 	s.Element[n] = []string{value}
 }
 
-func (s *Segment) CopyTo(w *EdiWriter) {
+func (s *Segment) CopyTo(w *EdiStream) {
 	for i, v := range s.Element {
 		if i > 0 {
 			w.s.WriteString(w.Edelim)

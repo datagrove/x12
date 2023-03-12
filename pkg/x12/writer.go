@@ -4,21 +4,61 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 )
 
-type EdiWriter struct {
+type EdiStream struct {
 	*EdiOptions
+	s        strings.Builder
+	segCount int
+}
+
+func (e *EdiStream) WriteToFile(path string) {
+	os.WriteFile(path, []byte(e.s.String()), os.ModePerm)
+	e.s.Reset()
+}
+
+type EdiWriter struct {
+	EdiStream
 	controlNumber string
 	path          string
 	ccyymmdd      string
 	hhmm          string
 	groupCount    int
 	stCount       int
-	segCount      int
-	s             strings.Builder
 }
 
-func (w *EdiWriter) fixString(s string) string {
+func NewEdiWriter(op *EdiOptions, path string, controlNumber int) (*EdiWriter, error) {
+	tm := time.Now()
+	ccyymmdd := tm.Format(CCYYMMDD)
+	hhmm := tm.Format(HHMM)
+	r := &EdiWriter{
+		EdiStream: EdiStream{
+			EdiOptions: op,
+		},
+		path:          path,
+		ccyymmdd:      ccyymmdd,
+		hhmm:          hhmm,
+		groupCount:    0,
+		controlNumber: fmt.Sprintf("%09d", controlNumber),
+	}
+	x := op
+	v := []string{"ISA", "00", Pad("", 10), "00", Pad("", 10),
+		x.Sender.Key, Pad(x.Sender.Value, 15),
+		x.Receiver.Key, Pad(x.Receiver.Value, 15),
+		ccyymmdd[2:], hhmm, x.Rdelim, "00501", r.controlNumber, "0", "P", x.Cdelim}
+
+	for i, v := range v {
+		if i > 0 {
+			r.s.WriteString(op.Edelim)
+		}
+		r.s.WriteString(v)
+	}
+	r.s.WriteString(op.Sdelim + "\r\n")
+	return r, nil
+}
+
+func (w *EdiStream) fixString(s string) string {
 	var o strings.Builder
 	for _, c := range s {
 		switch c {
@@ -33,7 +73,7 @@ func (w *EdiWriter) fixString(s string) string {
 	return strings.TrimSpace(o.String())
 }
 
-func (w *EdiWriter) Write(r ...string) {
+func (w *EdiStream) Write(r ...string) {
 	for i := range r {
 		r[i] = w.fixString(r[i])
 	}
@@ -50,12 +90,12 @@ func (w *EdiWriter) Write(r ...string) {
 	w.s.WriteString(w.Sdelim + "\r\n")
 }
 
-func (w *EdiWriter) Date(qual, ccyymmdd string) {
+func (w *EdiStream) Date(qual, ccyymmdd string) {
 	if len(ccyymmdd) > 0 {
 		w.Write("DTP", qual, "D8", ccyymmdd)
 	}
 }
-func (w *EdiWriter) Ref(qual, val string) {
+func (w *EdiStream) Ref(qual, val string) {
 	if len(val) > 0 {
 		w.Write("REF", qual, val)
 	}
