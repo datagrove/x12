@@ -73,3 +73,21 @@ func ReadEdi(f string, fn func(s Segment) error) error {
 	}
 	return nil
 }
+
+// use canonical edi options
+func ReadEdiBytes(opt *EdiOptions, b []byte, fn func(s Segment) error) error {
+	s := string(b)
+	lns := strings.Split(s, opt.Sdelim)
+	var seg Segment
+	for i, ln := range lns {
+		seg.Line = i
+		el := strings.Split(ln, opt.Edelim)
+		seg.Element = make([][]string, len(el))
+		for i := range el {
+			seg.Element[i] = strings.Split(el[i], opt.Cdelim)
+		}
+		seg.Segid = seg.Element[0][0]
+		fn(seg)
+	}
+	return nil
+}
