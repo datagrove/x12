@@ -23,7 +23,7 @@ const (
 )
 
 func (x *Eight34) Write(w *EdiWriter) {
-	w.BeginGroup()
+	w.BeginGroup("005010X220A1")
 	defer w.EndGroup()
 	w.BeginTransaction("834")
 	defer w.EndTransaction()

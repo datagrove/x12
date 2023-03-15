@@ -2,6 +2,7 @@ package x12
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"strings"
 	"time"
@@ -48,6 +49,9 @@ func NewEdiWriter(op *EdiOptions, path string, controlNumber int) (*EdiWriter, e
 		x.Receiver.Key, Pad(x.Receiver.Value, 15),
 		ccyymmdd[2:], hhmm, x.Rdelim, "00501", r.controlNumber, "0", "P", x.Cdelim}
 
+	if len(v) == 0 {
+		log.Fatalf("fatal %v", v)
+	}
 	for i, v := range v {
 		if i > 0 {
 			r.s.WriteString(op.Edelim)
@@ -106,7 +110,7 @@ func (w *EdiWriter) Close() {
 	os.WriteFile(w.path, []byte(w.s.String()), 0666)
 }
 
-func (w *EdiWriter) BeginGroup() {
+func (w *EdiWriter) BeginGroup(editype string) {
 	w.groupCount++
 	w.stCount = 0
 	w.Write("GS", "BE",
@@ -115,7 +119,7 @@ func (w *EdiWriter) BeginGroup() {
 		w.ccyymmdd,
 		w.hhmm,
 		fmt.Sprintf("%d", w.groupCount),
-		"X", "005010X220A1")
+		"X", editype)
 }
 func (w *EdiWriter) EndGroup() {
 	w.Write("GE", fmt.Sprintf("%d", w.stCount), fmt.Sprintf("%d", w.groupCount))

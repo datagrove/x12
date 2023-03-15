@@ -51,6 +51,7 @@ func (s *Segment) CopyTo(w *EdiStream) {
 		}
 	}
 	w.s.WriteString(w.Sdelim + "\r\n")
+	w.segCount++
 }
 func ReadEdi(f string, fn func(s Segment) error) error {
 	b, e := os.ReadFile(f)
@@ -78,6 +79,12 @@ func ReadEdi(f string, fn func(s Segment) error) error {
 func ReadEdiBytes(opt *EdiOptions, b []byte, fn func(s Segment) error) error {
 	s := string(b)
 	lns := strings.Split(s, opt.Sdelim)
+	for i, ln := range lns {
+		lns[i] = strings.TrimSpace(ln)
+	}
+	for len(lns) > 0 && len(lns[len(lns)-1]) == 0 {
+		lns = lns[0 : len(lns)-1]
+	}
 	var seg Segment
 	for i, ln := range lns {
 		seg.Line = i
