@@ -58,7 +58,7 @@ func NewEdiWriter(op *EdiOptions, path string, controlNumber int) (*EdiWriter, e
 		}
 		r.s.WriteString(v)
 	}
-	r.s.WriteString(op.Sdelim + "\r\n")
+	r.s.WriteString(op.Sdelim) //+ "\r\n"
 	return r, nil
 }
 
@@ -91,7 +91,7 @@ func (w *EdiStream) Write(r ...string) {
 		}
 		w.s.WriteString(v)
 	}
-	w.s.WriteString(w.Sdelim + "\r\n")
+	w.s.WriteString(w.Sdelim) // + "\r\n"
 }
 
 func (w *EdiStream) Date(qual, ccyymmdd string) {

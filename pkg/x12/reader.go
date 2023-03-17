@@ -50,7 +50,7 @@ func (s *Segment) CopyTo(w *EdiStream) {
 			w.s.WriteString(o)
 		}
 	}
-	w.s.WriteString(w.Sdelim + "\r\n")
+	w.s.WriteString(w.Sdelim) // + "\r\n"
 	w.segCount++
 }
 func ReadEdi(f string, fn func(s Segment) error) error {
