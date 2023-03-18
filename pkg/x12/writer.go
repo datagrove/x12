@@ -110,10 +110,10 @@ func (w *EdiWriter) Close() {
 	os.WriteFile(w.path, []byte(w.s.String()), 0666)
 }
 
-func (w *EdiWriter) BeginGroup(editype string) {
+func (w *EdiWriter) BeginGroup(grouptype, editype string) {
 	w.groupCount++
 	w.stCount = 0
-	w.Write("GS", "BE",
+	w.Write("GS", grouptype,
 		w.EdiOptions.Gs02,
 		w.EdiOptions.Gs03,
 		w.ccyymmdd,
