@@ -125,13 +125,13 @@ func (w *EdiWriter) EndGroup() {
 	w.Write("GE", fmt.Sprintf("%d", w.stCount), fmt.Sprintf("%d", w.groupCount))
 }
 
-func (w *EdiWriter) BeginTransaction(transactionSet string) {
+func (w *EdiWriter) BeginTransaction(transactionSet string, standard string) {
 	w.stCount++
 	w.segCount = 0
 	w.Write("ST",
 		transactionSet,
 		fmt.Sprintf("%09d", w.stCount),
-		"005010X220A1")
+		standard)
 }
 func (w *EdiWriter) EndTransaction() {
 	w.segCount++

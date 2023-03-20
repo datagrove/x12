@@ -25,7 +25,7 @@ const (
 func (x *Eight34) Write(w *EdiWriter) {
 	w.BeginGroup("BE", "005010X220A1")
 	defer w.EndGroup()
-	w.BeginTransaction("834")
+	w.BeginTransaction("834", "005010X220A1")
 	defer w.EndTransaction()
 	w.Write("BGN", "00", x.Bgn02ReferenceId, w.ccyymmdd, w.hhmm, "", "", "", Verify)
 	w.Ref("38", x.Ref38Policy)
