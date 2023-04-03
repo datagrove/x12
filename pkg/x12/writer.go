@@ -25,7 +25,7 @@ type EdiWriter struct {
 	path          string
 	ccyymmdd      string
 	hhmm          string
-	groupCount    int
+	GroupCount    int
 	stCount       int
 }
 
@@ -40,7 +40,7 @@ func NewEdiWriter(op *EdiOptions, path string, controlNumber int) (*EdiWriter, e
 		path:          path,
 		ccyymmdd:      ccyymmdd,
 		hhmm:          hhmm,
-		groupCount:    0,
+		GroupCount:    0,
 		controlNumber: fmt.Sprintf("%09d", controlNumber),
 	}
 	x := op
@@ -106,23 +106,23 @@ func (w *EdiStream) Ref(qual, val string) {
 }
 
 func (w *EdiWriter) Close() {
-	w.Write("IEA", fmt.Sprintf("%d", w.groupCount), w.controlNumber)
+	w.Write("IEA", fmt.Sprintf("%d", w.GroupCount), w.controlNumber)
 	os.WriteFile(w.path, []byte(w.s.String()), 0666)
 }
 
 func (w *EdiWriter) BeginGroup(grouptype, editype string) {
-	w.groupCount++
+	w.GroupCount++
 	w.stCount = 0
 	w.Write("GS", grouptype,
 		w.EdiOptions.Gs02,
 		w.EdiOptions.Gs03,
 		w.ccyymmdd,
 		w.hhmm,
-		fmt.Sprintf("%d", w.groupCount),
+		fmt.Sprintf("%d", w.GroupCount),
 		"X", editype)
 }
 func (w *EdiWriter) EndGroup() {
-	w.Write("GE", fmt.Sprintf("%d", w.stCount), fmt.Sprintf("%d", w.groupCount))
+	w.Write("GE", fmt.Sprintf("%d", w.stCount), fmt.Sprintf("%d", w.GroupCount))
 }
 
 func (w *EdiWriter) BeginTransaction(transactionSet string, standard string) {

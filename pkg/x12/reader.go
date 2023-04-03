@@ -70,6 +70,9 @@ func ReadEdi(f string, fn func(s Segment) error) error {
 			seg.Element[i] = strings.Split(el[i], isa.Cdelim)
 		}
 		seg.Segid = seg.Element[0][0]
+		if seg.Segid == "IEA" {
+			break
+		}
 		fn(seg)
 	}
 	return nil
