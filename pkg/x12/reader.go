@@ -60,11 +60,16 @@ func ReadEdi(f string, fn func(s Segment) error) error {
 	}
 	s := string(b)
 	isa := NewIsa(s)
-	lns := strings.Split(s[106:], isa.Sdelim)
+	lns := strings.Split(s, isa.Sdelim)
 	var seg Segment
 	for i, ln := range lns {
 		seg.Line = i
 		el := strings.Split(ln, isa.Edelim)
+		if i == 0 {
+			for j := range el {
+				el[j] = strings.TrimSpace(el[j])
+			}
+		}
 		seg.Element = make([][]string, len(el))
 		for i := range el {
 			seg.Element[i] = strings.Split(el[i], isa.Cdelim)
